@@ -1,5 +1,5 @@
 import React from 'react';
-// import { nanoid } from 'nanoid';
+import { nanoid } from 'nanoid';
 import { InputContacts } from './PhoneBook/InputContacts.jsx';
 import { Contacts } from './PhoneBook/ContactsList';
 import { Filter } from './PhoneBook/Filter';
@@ -16,6 +16,25 @@ export class App extends React.Component {
     filter: '',
   };
 
+  componentDidMount() {
+    const contacts = JSON.parse(window.localStorage.getItem('contacts'));
+    if (contacts?.length) {
+      this.setState({ contacts });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.contacts !== this.state.contacts) {
+      window.localStorage.setItem(
+        'contacts',
+        JSON.stringify(this.state.contacts)
+      );
+    }
+    if (prevState.filter !== this.state.filter) {
+      window.localStorage.setItem('filter', JSON.stringify(this.state.filter));
+    }
+  }
+
   handleAddContact = contact => {
     const contactExists = this.state.contacts.some(
       existingName =>
@@ -27,9 +46,10 @@ export class App extends React.Component {
       return;
     }
 
-    // const id = nanoid();
+    const id = nanoid();
+    const newContact = { ...contact, id };
     this.setState(prev => ({
-      contacts: [...prev.contacts, contact],
+      contacts: [...prev.contacts, newContact],
     }));
   };
 
